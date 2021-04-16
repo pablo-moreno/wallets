@@ -82,6 +82,4 @@ jobs:
           port: ${{ secrets.PORT }}
           script_stop: true
           script:
-            docker service update --force wallets_wallets
-            docker exec $(docker ps -q -f name=wallets_wallet) python manage.py migrate
-            docker exec $(docker ps -q -f name=wallets_wallet) python manage.py collectstatic --noinput
+            docker service update --force wallets_wallets && docker exec $(docker ps -q -f name=wallets_wallet) python manage.py migrate
