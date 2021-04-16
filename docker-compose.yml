@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: development
+      POSTGRES_DB: wallets
+    volumes:
+      - /var/data/wallets/database:/var/lib/postgresql/data
+
+  wallets:
+    build:
+      context: .
+    working_dir: /app
+    environment:
+      DATABASE_URL: postgres://admin:development@postgres:5432/wallets
+      DEBUG: "TRUE"
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - postgres
+    links:
+      - postgres
