@@ -75,19 +75,13 @@ jobs:
     steps:
       - name: SSH Remote Commands
         uses: appleboy/ssh-action@v0.1.4
-        env:
-          REF: ${{ github.ref }}
-          REPOSITORY: ${{ github.repository }}
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           port: ${{ secrets.PORT }}
           script_stop: true
-          script: |
-            cd /home/ubuntu
-            VERSION=$(echo "$REF" | sed -e 's,.*/\(.*\),\1,')
-            [[ "$REF" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-            IMAGE_ID=docker.pkg.github.com/$REPOSITORY/wallets
-            docker pull docker.pkg.github.com/pablo-moreno/wallets:{{  }}
-            docker service update --force wallets_production_wallets
+          script:
+            docker service update --force wallets_wallets
+            docker exec $(docker ps -q -f name=wallets_wallet) python manage.py migrate
+            docker exec $(docker ps -q -f name=wallets_wallet) python manage.py collectstatic --noinput
