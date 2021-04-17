@@ -75,6 +75,8 @@ jobs:
     steps:
       - name: SSH Remote Commands
         uses: appleboy/ssh-action@v0.1.4
+        env:
+          VERSION: ${{ github.ref }}
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
@@ -82,6 +84,7 @@ jobs:
           port: ${{ secrets.PORT }}
           script_stop: true
           script: |
+            echo $VERSION
             docker service update --force wallets_wallets
             docker exec $(docker ps -q -f name=wallets_wallet) python manage.py migrate
             docker exec $(docker ps -q -f name=wallets_wallet) python manage.py collectstatic --no-input
