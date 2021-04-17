@@ -12,7 +12,7 @@ from rest_framework_jwt.views import (
 )
 from users.api.v1.permissions import IsUserActive
 from users.api.v1.serializers import (
-    LoginSerializer, UserSerializer, UserProfileSerializer, CreateUserSerializer, UpdatePasswordSerializer
+    LoginSerializer, UserSerializer, CreateUserSerializer, UpdatePasswordSerializer
 )
 from users.models import UserProfile
 
