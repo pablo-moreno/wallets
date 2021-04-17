@@ -10,3 +10,5 @@ SECRET_KEY = environ.get('SECRET_KEY', 'set secret key')
 DATABASE_URL = environ.get('DATABASE_URL', 'postgres://admin:development@postgres:5432/wallets')
 
 SENTRY_DSN = environ.get('SENTRY_DSN')
+
+PAGE_SIZE = environ.get('PAGE_SIZE', 20)
