@@ -6,6 +6,7 @@ from django.contrib.auth.password_validation import validate_password, get_passw
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
 
 from users.models import UserProfile
+from wallets.models import CustomerWallets, BusinessWallet
 
 AUTH_PASSWORD_VALIDATORS = getattr(settings, 'AUTH_PASSWORD_VALIDATORS')
 
@@ -73,6 +74,11 @@ class CreateUserSerializer(serializers.ModelSerializer):
             user=user,
             type=type,
         )
+
+        if type == UserProfile.TYPE_CUSTOMER:
+            CustomerWallets.objects.create(user=user)
+        elif type == UserProfile.TYPE_BUSINESS:
+            BusinessWallet.objects.create(user=user)
 
         return user
 
