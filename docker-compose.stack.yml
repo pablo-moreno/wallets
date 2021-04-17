@@ -17,6 +17,9 @@ services:
     # TODO: Setup environment variables according to the deployment environment
     environment:
       DATABASE_URL: postgres://admin:development@postgres:5432/wallets
+      SENTRY_DSN: "sentry dsn"
+      DJANGO_SETTINGS_MODULE: "config.settings.production"
+      SECRET_KEY: "secret key"
     entrypoint: ["uvicorn", "--workers", "1", "--host", "0.0.0.0", "--port", "8000", "config.asgi:application"]
     volumes:
       - ./media:/app/media
