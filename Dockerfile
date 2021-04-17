@@ -6,6 +6,6 @@ COPY . /app
 ARG VERSION
 ENV APP_VERSION=$VERSION
 
-RUN apt-get update && apt-get install -y gcc vim postgresql-client
+RUN apt-get update && apt-get install -y gcc vim postgresql-client curl git
 
 RUN pip install -r requirements.txt
