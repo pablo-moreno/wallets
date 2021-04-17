@@ -19,3 +19,6 @@ pytest-cov==2.11.1
 
 # Production server
 uvicorn==0.13.4
+
+# Sentry
+sentry-sdk==1.0.0
