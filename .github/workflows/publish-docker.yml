@@ -26,9 +26,7 @@ jobs:
           docker-compose --file docker-compose.test.yml run -e CODECOV_TOKEN=$CODECOV_TOKEN wallets bash runtests.sh
 
   # Push image to GitHub Packages.
-  # See also https://docs.docker.com/docker-hub/builds/
   push:
-    # Ensure test job passes before pushing image.
     needs: test
 
     runs-on: ubuntu-latest
