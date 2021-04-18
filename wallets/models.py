@@ -73,9 +73,6 @@ class Wallet(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     modified_date = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.uuid
-
     def save(self, *args, **kwargs):
         self.modified_date = timezone.now()
         return super().save(*args, **kwargs)
@@ -89,9 +86,6 @@ class BusinessWallet(models.Model):
     user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='business_wallet')
     wallet = models.OneToOneField(Wallet, on_delete=models.PROTECT, null=True, blank=True)
 
-    def __str__(self):
-        return self.user.email
-
     class Meta:
         verbose_name = _('Business wallet')
         verbose_name_plural = _('Business wallets')
@@ -101,9 +95,6 @@ class CustomerWallets(models.Model):
     user = models.OneToOneField(User, on_delete=models.PROTECT, related_name='customer_wallets')
     wallets = models.ManyToManyField(Wallet)
 
-    def __str__(self):
-        return self.user.email
-
     class Meta:
         verbose_name = _('Customer wallets')
         verbose_name_plural = _('Customer wallets')
@@ -112,9 +103,6 @@ class CustomerWallets(models.Model):
 class BusinessCustomers(models.Model):
     business = models.OneToOneField(User, on_delete=models.PROTECT, related_name='customers')
     customers = models.ManyToManyField(User)
-
-    def __str__(self):
-        return f'{self.business.email} customers'
 
     class Meta:
         verbose_name = _('Business customers')

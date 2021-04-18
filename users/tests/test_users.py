@@ -161,7 +161,7 @@ class TestUsers(APITestCase):
         assert response.status_code == 200
         response = self.client.patch('/api/v1/users/change-password', {
             'old_password': self.password,
-            'new_password': self.password,
+            'new_password': self.password[::-1],
             'new_password2': 'notthesamepassword',
         })
         assert response.status_code == 400

@@ -28,10 +28,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer(read_only=True)
 
-    def get_profile(self, user):
-        profile = UserProfile.objects.get(user=user)
-        return profile
-
     class Meta:
         model = User
         fields = (
@@ -72,11 +68,11 @@ class CreateUserSerializer(serializers.ModelSerializer):
             type=type,
         )
 
-        if type == UserProfile.TYPE_CUSTOMER:
-            CustomerWallets.objects.create(user=user)
-        elif type == UserProfile.TYPE_BUSINESS:
+        if type == UserProfile.TYPE_BUSINESS:
             BusinessWallet.objects.create(user=user)
             BusinessCustomers.objects.create(business=user)
+        else:
+            CustomerWallets.objects.create(user=user)
 
         return user
 
