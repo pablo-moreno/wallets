@@ -11,12 +11,18 @@ class NegativeBalanceException(Exception):
     pass
 
 
-def customer_deposit_into_wallet(amount: Decimal, wallet: Wallet):
+class TransactionAlreadyProcessedException(Exception):
+    pass
+
+
+def customer_deposit_into_wallet(amount: Decimal, wallet: Wallet, customer: User, description: str = ''):
     with tr.atomic():
         transaction = Transaction.objects.create(
             amount=amount,
             wallet=wallet,
             type=Transaction.TYPE_DEPOSIT,
+            customer=customer,
+            description=description,
         )
 
         wallet.balance += amount
@@ -30,7 +36,7 @@ def customer_deposit_into_wallet(amount: Decimal, wallet: Wallet):
 def business_debit_transaction(transaction: Transaction):
     with tr.atomic():
         if transaction.status == Transaction.STATUS_ACCEPTED:
-            return
+            raise TransactionAlreadyProcessedException('Can\'t debit an already accepted transaction.')
 
         amount = transaction.amount
         wallet = transaction.wallet

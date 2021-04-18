@@ -53,7 +53,7 @@ class Transaction(models.Model, TransactionStatusChoicesMixin, TransactionTypeCh
         blank=True,
     )
     business = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True)
-    user = models.ForeignKey(
+    customer = models.ForeignKey(
         User,
         on_delete=models.PROTECT,
         related_name='created_transactions',

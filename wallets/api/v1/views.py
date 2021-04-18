@@ -1,8 +1,9 @@
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, UpdateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, UpdateAPIView, ListAPIView, get_object_or_404
 from rest_framework.response import Response
 
-from wallets.api.v1.serializers import WalletSerializer, DepositWalletFundsSerializer
+from wallets.api.v1.serializers import WalletSerializer, DepositWalletFundsSerializer, TransactionSerializer
+from wallets.models import Wallet, Transaction
 from wallets.transactions import customer_deposit_into_wallet
 
 
@@ -33,6 +34,7 @@ class CustomerWalletDepositFunds(CustomerWalletsQuerysetMixin, UpdateAPIView):
     lookup_field = 'uuid'
 
     def update(self, request, *args, **kwargs):
+        user = self.request.user
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
 
@@ -41,7 +43,25 @@ class CustomerWalletDepositFunds(CustomerWalletsQuerysetMixin, UpdateAPIView):
         data = serializer.validated_data
 
         amount = data.get('amount')
-        wallet = customer_deposit_into_wallet(wallet=instance, amount=amount)
+        description = data.get('description')
+        wallet = customer_deposit_into_wallet(
+            wallet=instance,
+            amount=amount,
+            customer=user,
+            description=description
+        )
         response_data = WalletSerializer(wallet).data
 
         return Response(data=response_data, status=status.HTTP_200_OK)
+
+
+class CustomerWalletTransactions(ListAPIView):
+    serializer_class = TransactionSerializer
+
+    def get_wallet(self):
+        uuid = self.kwargs.get('uuid')
+        return get_object_or_404(Wallet, uuid=uuid)
+
+    def get_queryset(self):
+        wallet = self.get_wallet()
+        return Transaction.objects.filter(wallet=wallet)

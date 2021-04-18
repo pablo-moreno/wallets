@@ -16,12 +16,14 @@ class WalletSerializer(serializers.ModelSerializer):
 
 class DepositWalletFundsSerializer(serializers.ModelSerializer):
     amount = serializers.DecimalField(max_digits=11, decimal_places=2, write_only=True)
+    description = serializers.CharField(max_length=250)
 
     class Meta:
         model = Wallet
         fields = (
-            'amount',
             'uuid',
+            'amount',
+            'description',
             'balance',
             'created_date',
             'created_date',

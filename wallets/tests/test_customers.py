@@ -48,7 +48,24 @@ class TestCustomers(APITestCase):
         uuid = data.get('uuid')
         payload = {
             'amount': '200.00',
+            'description': 'Deposit 200€',
         }
 
         response = self.client.patch(f'/api/v1/wallets/customers/wallets/{uuid}/deposit', payload)
         assert response.status_code == 200
+
+        response = self.client.get(f'/api/v1/wallets/customers/wallets/{uuid}')
+        assert response.status_code == 200
+
+        wallet_details = response.json()
+        assert wallet_details.get('balance') == '200.00'
+
+        response = self.client.get(f'/api/v1/wallets/customers/wallets/{uuid}/transactions')
+        assert response.status_code == 200
+
+        transaction_list = response.json().get('results')
+        assert len(transaction_list) == 1
+        transaction = transaction_list[0]
+
+        assert transaction.get('amount') == payload.get('amount')
+        assert transaction.get('description') == payload.get('description')
