@@ -1,14 +1,13 @@
-from decimal import Decimal
-
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
 from users.models import UserProfile
+from .utils import TestAuthenticationMixin
 
 User = get_user_model()
 
 
-class TestCustomers(APITestCase):
+class TestCustomers(APITestCase, TestAuthenticationMixin):
     fixtures = ('users', 'profiles', 'customer_wallets', )
 
     def setUp(self):
@@ -18,15 +17,15 @@ class TestCustomers(APITestCase):
         self.user.set_password(self.password)
         self.user.save()
 
-    def login(self):
+    def login(self, username, password):
         response = self.client.post('/api/v1/users/login', {
-            'username': self.user.username,
-            'password': self.password,
+            'username': username,
+            'password': password,
         })
         assert response.status_code == 200
 
     def test_create_wallet(self):
-        self.login()
+        self.login(username=self.user.username, password=self.password)
         response = self.client.post('/api/v1/wallets/customers/wallets')
         assert response.status_code == 201
 
@@ -40,7 +39,7 @@ class TestCustomers(APITestCase):
         assert wallet_details.get('balance') == '0.00'
 
     def test_create_wallet_and_deposit_funds(self):
-        self.login()
+        self.login(username=self.user.username, password=self.password)
         response = self.client.post('/api/v1/wallets/customers/wallets')
         assert response.status_code == 201
 
@@ -69,3 +68,43 @@ class TestCustomers(APITestCase):
 
         assert transaction.get('amount') == payload.get('amount')
         assert transaction.get('description') == payload.get('description')
+
+    def test_create_wallet_deposit_and_retire_funds(self):
+        self.login(username=self.user.username, password=self.password)
+        response = self.client.post('/api/v1/wallets/customers/wallets')
+        assert response.status_code == 201
+
+        data = response.json()
+        uuid = data.get('uuid')
+
+        response = self.client.patch(f'/api/v1/wallets/customers/wallets/{uuid}/deposit', {
+            'amount': '200.00',
+            'description': 'Deposit 200€',
+        })
+        assert response.status_code == 200
+
+        response = self.client.patch(f'/api/v1/wallets/customers/wallets/{uuid}/retire', {
+            'amount': '-150.00',
+            'description': 'Retire 150€',
+        })
+        assert response.status_code == 200
+
+        response = self.client.get(f'/api/v1/wallets/customers/wallets/{uuid}')
+        assert response.status_code == 200
+
+        data = response.json()
+        assert data.get('balance') == '50.00'
+
+    def test_create_wallet_deposit_and_retire_more_funds_than_you_have(self):
+        self.login(username=self.user.username, password=self.password)
+        response = self.client.post('/api/v1/wallets/customers/wallets')
+        assert response.status_code == 201
+
+        data = response.json()
+        uuid = data.get('uuid')
+
+        response = self.client.patch(f'/api/v1/wallets/customers/wallets/{uuid}/retire', {
+            'amount': '-150.00',
+            'description': 'Retire 150€',
+        })
+        assert response.status_code == 409

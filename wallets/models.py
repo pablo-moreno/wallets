@@ -9,6 +9,20 @@ from django.utils.translation import gettext as _
 User = get_user_model()
 
 
+# class Product(models.Model):
+#     name = models.CharField(max_length=250)
+#     description = models.CharField(max_length=400)
+#     unit_price = models.DecimalField(max_digits=11, decimal_places=2, default=Decimal('0.00'))
+#     vat = models.DecimalField(max_digits=11, decimal_places=2, default=Decimal('0.00'))
+#
+#
+# class Order(models.Model):
+#     products = models.ManyToManyField(Product)
+#     created = models.DateTimeField(auto_now_add=True)
+#     total_price = models.DecimalField(max_digits=11, decimal_places=2, default=Decimal('0.00'))
+#     customer = models.ForeignKey(User, related_name='orders', on_delete=models.PROTECT)
+
+
 class TransactionStatusChoicesMixin(object):
     STATUS_PENDING = 1
     STATUS_ACCEPTED = 2

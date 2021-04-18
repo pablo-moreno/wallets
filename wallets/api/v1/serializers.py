@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
 from wallets.models import Transaction, Wallet
 
 
@@ -34,6 +36,14 @@ class DepositWalletFundsSerializer(serializers.ModelSerializer):
             'created_date',
             'created_date',
         )
+
+
+class RetireWalletFundsSerializer(DepositWalletFundsSerializer):
+    def validate_amount(self, amount):
+        if amount > 0:
+            raise ValidationError('Amount must be negative')
+
+        return amount
 
 
 class TransactionSerializer(serializers.ModelSerializer):

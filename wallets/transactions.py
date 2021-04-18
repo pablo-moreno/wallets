@@ -33,6 +33,29 @@ def customer_deposit_into_wallet(amount: Decimal, wallet: Wallet, customer: User
     return wallet
 
 
+def customer_retire_funds_from_wallet(amount: Decimal, wallet: Wallet, customer: User, description: str = ''):
+    with tr.atomic():
+        amount = abs(amount)
+
+        if wallet.balance - amount < 0:
+            raise NegativeBalanceException('Balance can\'t be negative')
+
+        transaction = Transaction.objects.create(
+            amount=-amount,
+            wallet=wallet,
+            type=Transaction.TYPE_DEBIT,
+            customer=customer,
+            description=description,
+        )
+
+        wallet.balance -= amount
+        wallet.save()
+        transaction.status = Transaction.STATUS_ACCEPTED
+        transaction.save()
+
+    return wallet
+
+
 def business_debit_transaction(transaction: Transaction):
     with tr.atomic():
         if transaction.status == Transaction.STATUS_ACCEPTED:
