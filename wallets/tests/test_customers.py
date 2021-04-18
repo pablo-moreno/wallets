@@ -16,6 +16,11 @@ class TestCustomers(APITestCase, TestAuthenticationMixin):
         self.password = 'as12345678'
         self.user.set_password(self.password)
         self.user.save()
+        self.business = self.create_account(
+            username='mediamarket',
+            password='mediamarket',
+            account_type=UserProfile.TYPE_BUSINESS
+        )
 
     def login(self, username, password):
         response = self.client.post('/api/v1/users/login', {
@@ -108,3 +113,42 @@ class TestCustomers(APITestCase, TestAuthenticationMixin):
             'description': 'Retire 150€',
         })
         assert response.status_code == 409
+
+    def test_create_wallet_deposit_and_retire_positive_amount(self):
+        self.login(username=self.user.username, password=self.password)
+        response = self.client.post('/api/v1/wallets/customers/wallets')
+        assert response.status_code == 201
+
+        data = response.json()
+        uuid = data.get('uuid')
+
+        response = self.client.patch(f'/api/v1/wallets/customers/wallets/{uuid}/retire', {
+            'amount': '50.00',
+            'description': 'Retire 150€',
+        })
+        assert response.status_code == 400
+
+    def test_create_transaction(self):
+        self.login(username=self.user.username, password=self.password)
+
+        data = {
+            'amount': '1500.00',
+            'description': 'TV LG OLED 55" 4K'
+        }
+        response = self.client.post(f'/api/v1/wallets/business/{self.business.pk}/customers/transactions', data)
+        assert response.status_code == 201
+
+        self.client.logout()
+        self.login(username=self.business.username, password=self.business.username)
+
+        response = self.client.get(f'/api/v1/wallets/business/{self.business.pk}/customers/transactions')
+        assert response.status_code == 200
+
+        results = response.json().get('results')
+        assert len(results) == 1
+
+    def test_cannot_list_business_transaction_as_customer(self):
+        self.login(username=self.user.username, password=self.password)
+
+        response = self.client.get(f'/api/v1/wallets/business/{self.business.pk}/customers/transactions')
+        assert response.status_code == 403

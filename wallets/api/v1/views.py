@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from django.utils.translation import gettext as _
 
 from wallets.api.v1.exceptions import NegativeBalanceAPIException
+from wallets.api.v1.permissions import IsBusinessAccount
 from wallets.api.v1.serializers import WalletSerializer, DepositWalletFundsSerializer, TransactionSerializer, \
     RetireWalletFundsSerializer
 from wallets.models import Wallet, Transaction
@@ -114,3 +115,21 @@ class RetrieveCreateBusinessWallet(RetrieveAPIView, CreateAPIView):
     def get_object(self):
         user = self.request.user
         return user.business_wallet.wallet
+
+
+class ListCreateTransaction(ListCreateAPIView):
+    serializer_class = TransactionSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(business_id=self.kwargs.get('id'))
+
+    def get_queryset(self):
+        return Transaction.objects.filter(business=self.request.user)
+
+    def get_permissions(self):
+        method = self.request.method.lower()
+
+        if method == 'post':
+            return []
+        else:
+            return [IsBusinessAccount(), ]

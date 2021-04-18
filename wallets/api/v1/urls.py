@@ -3,6 +3,7 @@ from django.urls import path
 from wallets.api.v1.views import (
     ListCreateCustomerWallets, RetrieveCustomerWallets,
     CustomerWalletDepositFunds, CustomerWalletTransactions, RetrieveCreateBusinessWallet, CustomerWalletRetireFunds,
+    ListCreateTransaction,
 )
 
 urlpatterns = [
@@ -15,6 +16,7 @@ urlpatterns = [
 
     # Business
     path('business/wallet', RetrieveCreateBusinessWallet.as_view(), name='retrieve-create-business-wallet'),
+    path('business/<id>/customers/transactions', ListCreateTransaction.as_view(), name='list-create-transaction'),
 
     # # Business
     # # Retrieve Create Business Wallet

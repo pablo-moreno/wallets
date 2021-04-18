@@ -15,7 +15,10 @@ class TransactionAlreadyProcessedException(Exception):
     pass
 
 
-def customer_deposit_into_wallet(amount: Decimal, wallet: Wallet, customer: User, description: str = ''):
+def customer_deposit_into_wallet(amount: Decimal, wallet: Wallet, customer: User, description: str = '') -> Wallet:
+    """
+        Customer deposits funds into a wallet
+    """
     with tr.atomic():
         transaction = Transaction.objects.create(
             amount=amount,
@@ -33,7 +36,13 @@ def customer_deposit_into_wallet(amount: Decimal, wallet: Wallet, customer: User
     return wallet
 
 
-def customer_retire_funds_from_wallet(amount: Decimal, wallet: Wallet, customer: User, description: str = ''):
+def customer_retire_funds_from_wallet(amount: Decimal, wallet: Wallet, customer: User, description: str = '') -> Wallet:
+    """
+        Customer retires atomically funds from a specified wallet
+
+        :raises NegativeBalanceException:
+    """
+
     with tr.atomic():
         amount = abs(amount)
 
@@ -56,7 +65,11 @@ def customer_retire_funds_from_wallet(amount: Decimal, wallet: Wallet, customer:
     return wallet
 
 
-def business_debit_transaction(transaction: Transaction):
+def business_debit_transaction(transaction: Transaction) -> Wallet:
+    """
+        :raises NegativeBalanceException:
+        :raises TransactionAlreadyProcessedException:
+    """
     with tr.atomic():
         if transaction.status == Transaction.STATUS_ACCEPTED:
             raise TransactionAlreadyProcessedException('Can\'t debit an already accepted transaction.')
@@ -77,3 +90,5 @@ def business_debit_transaction(transaction: Transaction):
 
         wallet.save()
         transaction.status = Transaction.STATUS_ACCEPTED
+
+    return wallet
