@@ -1,22 +1,26 @@
-from rest_framework.generics import ListCreateAPIView
-
-from users.models import UserProfile
-from wallets.api.v1.serializers import TransactionSerializer
-from wallets.models import Transaction
+from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
+from wallets.api.v1.serializers import WalletSerializer
 
 
-class ListCreateTransaction(ListCreateAPIView):
-    serializer_class = TransactionSerializer
+class ListCreateCustomerWallets(ListCreateAPIView):
+    serializer_class = WalletSerializer
     lookup_field = 'uuid'
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        instance = serializer.save()
+        user = self.request.user
+        user.customer_wallets.wallets.add(instance)
+        return instance
 
     def get_queryset(self):
         user = self.request.user
+        return user.customer_wallets.wallets.all()
 
-        if user.profile.type == UserProfile.TYPE_BUSINESS:
-            return Transaction.objects.filter(business=user)
 
-        return Transaction.objects.filter(user=user)
+class RetrieveCustomerWallets(RetrieveAPIView):
+    serializer_class = WalletSerializer
+    lookup_field = 'uuid'
 
+    def get_queryset(self):
+        user = self.request.user
+        return user.customer_wallets.wallets.all()

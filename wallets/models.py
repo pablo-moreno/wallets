@@ -107,3 +107,15 @@ class CustomerWallets(models.Model):
     class Meta:
         verbose_name = _('Customer wallets')
         verbose_name_plural = _('Customer wallets')
+
+
+class BusinessCustomers(models.Model):
+    business = models.OneToOneField(User, on_delete=models.PROTECT, related_name='customers')
+    customers = models.ManyToManyField(User)
+
+    def __str__(self):
+        return f'{self.business.email} customers'
+
+    class Meta:
+        verbose_name = _('Business customers')
+        verbose_name_plural = _('Businesses customers')

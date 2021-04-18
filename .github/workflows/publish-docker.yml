@@ -42,9 +42,7 @@ jobs:
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
       - name: Push image
-        run: |
-          IMAGE_ID=docker.pkg.github.com/pablo-moreno/wallets/wallets
-          docker push $IMAGE_ID:latest
+        run: docker push docker.pkg.github.com/pablo-moreno/wallets/wallets:latest
 
   deploy:
     needs: push
