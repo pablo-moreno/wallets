@@ -38,3 +38,17 @@ class TestCustomers(APITestCase):
 
         wallet_details = response.json()
         assert wallet_details.get('balance') == '0.00'
+
+    def test_create_wallet_and_deposit_funds(self):
+        self.login()
+        response = self.client.post('/api/v1/wallets/customers/wallets')
+        assert response.status_code == 201
+
+        data = response.json()
+        uuid = data.get('uuid')
+        payload = {
+            'amount': '200.00',
+        }
+
+        response = self.client.patch(f'/api/v1/wallets/customers/wallets/{uuid}/deposit', payload)
+        assert response.status_code == 200

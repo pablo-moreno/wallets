@@ -24,6 +24,8 @@ def customer_deposit_into_wallet(amount: Decimal, wallet: Wallet):
         tr.status = Transaction.STATUS_ACCEPTED
         transaction.save()
 
+    return wallet
+
 
 def business_debit_transaction(transaction: Transaction):
     with tr.atomic():

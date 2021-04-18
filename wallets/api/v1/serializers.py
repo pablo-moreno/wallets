@@ -14,6 +14,26 @@ class WalletSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class DepositWalletFundsSerializer(serializers.ModelSerializer):
+    amount = serializers.DecimalField(max_digits=11, decimal_places=2, write_only=True)
+
+    class Meta:
+        model = Wallet
+        fields = (
+            'amount',
+            'uuid',
+            'balance',
+            'created_date',
+            'created_date',
+        )
+        read_only_fields = (
+            'uuid',
+            'balance',
+            'created_date',
+            'created_date',
+        )
+
+
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
