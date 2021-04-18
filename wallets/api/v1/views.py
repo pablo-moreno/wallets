@@ -1,17 +1,17 @@
 from rest_framework import status
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, UpdateAPIView, ListAPIView, get_object_or_404, \
     CreateAPIView
 from rest_framework.response import Response
 from django.utils.translation import gettext as _
 
-from wallets.api.v1.exceptions import NegativeBalanceAPIException
+from wallets.api.v1.exceptions import NegativeBalanceAPIException, TransactionAlreadyProcessedAPIException
 from wallets.api.v1.permissions import IsBusinessAccount
 from wallets.api.v1.serializers import WalletSerializer, DepositWalletFundsSerializer, TransactionSerializer, \
     RetireWalletFundsSerializer
 from wallets.models import Wallet, Transaction
 from wallets.transactions import customer_deposit_into_wallet, customer_retire_funds_from_wallet, \
-    NegativeBalanceException
+    NegativeBalanceException, business_debit_transaction, TransactionAlreadyProcessedException
 
 
 class CustomerWalletsQuerysetMixin(object):
@@ -133,3 +133,26 @@ class ListCreateTransaction(ListCreateAPIView):
             return []
         else:
             return [IsBusinessAccount(), ]
+
+
+class DebitTransaction(UpdateAPIView):
+    serializer_class = TransactionSerializer
+    permission_classes = [IsBusinessAccount, ]
+    lookup_field = 'uuid'
+
+    def get_queryset(self):
+        return Transaction.objects.filter(business=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        try:
+            transaction = business_debit_transaction(instance)
+        except NegativeBalanceException as e:
+            raise NegativeBalanceAPIException()
+        except TransactionAlreadyProcessedException as e:
+            raise TransactionAlreadyProcessedAPIException()
+
+        response_data = TransactionSerializer(transaction).data
+
+        return Response(data=response_data, status=status.HTTP_200_OK)

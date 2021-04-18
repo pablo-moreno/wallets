@@ -65,22 +65,23 @@ def customer_retire_funds_from_wallet(amount: Decimal, wallet: Wallet, customer:
     return wallet
 
 
-def business_debit_transaction(transaction: Transaction) -> Wallet:
+def business_debit_transaction(transaction: Transaction) -> Transaction:
     """
         :raises NegativeBalanceException:
         :raises TransactionAlreadyProcessedException:
     """
     with tr.atomic():
+        business = transaction.business
+
         if transaction.status == Transaction.STATUS_ACCEPTED:
             raise TransactionAlreadyProcessedException('Can\'t debit an already accepted transaction.')
 
-        amount = transaction.amount
+        amount = abs(transaction.amount)
         wallet = transaction.wallet
 
-        if amount > 0:
-            amount = -amount
-
-        wallet.balance += amount
+        wallet.balance -= amount
+        business_wallet = business.business_wallet.wallet
+        business_wallet.balance += amount
 
         if wallet.balance < 0:
             transaction.status = Transaction.STATUS_REJECTED
@@ -89,6 +90,8 @@ def business_debit_transaction(transaction: Transaction) -> Wallet:
             raise NegativeBalanceException('Balance can\'t be negative')
 
         wallet.save()
+        business_wallet.save()
         transaction.status = Transaction.STATUS_ACCEPTED
+        transaction.save()
 
-    return wallet
+    return transaction
