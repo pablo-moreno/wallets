@@ -62,7 +62,7 @@ class CustomerWalletDepositFunds(CustomerWalletsQuerysetMixin, UpdateAPIView):
         amount = data.get('amount')
         description = data.get('description')
         wallet = customer_deposit_into_wallet(
-            wallet=instance,
+            wallet_id=instance.pk,
             amount=amount,
             customer=user,
             description=description
@@ -89,7 +89,7 @@ class CustomerWalletRetireFunds(CustomerWalletsQuerysetMixin, UpdateAPIView):
 
         try:
             wallet = customer_retire_funds_from_wallet(
-                wallet=instance,
+                wallet_id=instance.pk,
                 amount=amount,
                 customer=user,
                 description=description
@@ -161,7 +161,7 @@ class DebitTransaction(UpdateAPIView):
         instance = self.get_object()
 
         try:
-            transaction = business_debit_transaction(instance)
+            transaction = business_debit_transaction(instance.pk)
         except NegativeBalanceException as e:
             raise NegativeBalanceAPIException()
         except TransactionAlreadyProcessedException as e:
