@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, UpdateAPIView, ListAPIView, get_object_or_404, \
@@ -5,13 +6,23 @@ from rest_framework.generics import ListCreateAPIView, RetrieveAPIView, UpdateAP
 from rest_framework.response import Response
 from django.utils.translation import gettext as _
 
+from users.models import UserProfile
 from wallets.api.v1.exceptions import NegativeBalanceAPIException, TransactionAlreadyProcessedAPIException
 from wallets.api.v1.permissions import IsBusinessAccount
 from wallets.api.v1.serializers import WalletSerializer, DepositWalletFundsSerializer, TransactionSerializer, \
-    RetireWalletFundsSerializer
+    RetireWalletFundsSerializer, BusinessSerializer
 from wallets.models import Wallet, Transaction
 from wallets.transactions import customer_deposit_into_wallet, customer_retire_funds_from_wallet, \
     NegativeBalanceException, business_debit_transaction, TransactionAlreadyProcessedException
+
+User = get_user_model()
+
+
+class ListBusiness(ListAPIView):
+    serializer_class = BusinessSerializer
+
+    def get_queryset(self):
+        return User.objects.filter(profile__type=UserProfile.TYPE_BUSINESS)
 
 
 class CustomerWalletsQuerysetMixin(object):
@@ -121,18 +132,21 @@ class ListCreateTransaction(ListCreateAPIView):
     serializer_class = TransactionSerializer
 
     def perform_create(self, serializer):
-        serializer.save(business_id=self.kwargs.get('id'))
+        serializer.save(
+            business_id=self.kwargs.get('id'),
+            customer=self.request.user
+        )
+
+    def get_queryset(self):
+        business_id = self.kwargs.get('id')
+        return Transaction.objects.filter(customer=self.request.user, business_id=business_id)
+
+
+class ListBusinessTransactions(ListAPIView):
+    serializer_class = TransactionSerializer
 
     def get_queryset(self):
         return Transaction.objects.filter(business=self.request.user)
-
-    def get_permissions(self):
-        method = self.request.method.lower()
-
-        if method == 'post':
-            return []
-        else:
-            return [IsBusinessAccount(), ]
 
 
 class DebitTransaction(UpdateAPIView):

@@ -48,10 +48,7 @@ POST /api/v1/users/sign-up
 {
   "email": "pablo@mail.com",
   "first_name": "Pablo",
-  "last_name": "Moreno",
-  "profile": {
-    "type": 1
-  }
+  "last_name": "Moreno"
 }
 ```
 

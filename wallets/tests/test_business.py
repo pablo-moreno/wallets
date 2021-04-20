@@ -38,6 +38,14 @@ class TestBusiness(APITestCase, TestAuthenticationMixin):
             )
         return customer, wallet
 
+    def test_list_business(self):
+        self.login(username=self.username, password=self.password)
+        response = self.client.get('/api/v1/wallets/business')
+        assert response.status_code == 200
+
+        data = response.json()
+        assert data.get('count') == 2
+
     def test_create_retrieve_business_wallet(self):
         self.login(username=self.username, password=self.password)
         response = self.client.post('/api/v1/wallets/business/wallet')
@@ -53,7 +61,7 @@ class TestBusiness(APITestCase, TestAuthenticationMixin):
         self.login(username=self.username, password=self.password)
         self.create_customer_data(self.business)
 
-        response = self.client.get(f'/api/v1/wallets/business/{self.business.pk}/customers/transactions')
+        response = self.client.get(f'/api/v1/wallets/business/transactions')
         assert response.status_code == 200
         data = response.json()
         assert data.get('count') == 3
@@ -72,7 +80,7 @@ class TestBusiness(APITestCase, TestAuthenticationMixin):
         customer, wallet = self.create_customer_data(self.business, transactions_number=1, amount=transaction_amount)
         previous_balance = wallet.balance
 
-        response = self.client.get(f'/api/v1/wallets/business/{self.business.pk}/customers/transactions')
+        response = self.client.get(f'/api/v1/wallets/business/transactions')
         assert response.status_code == 200
         data = response.json()
         assert data.get('count') == 1
@@ -101,7 +109,7 @@ class TestBusiness(APITestCase, TestAuthenticationMixin):
         customer, wallet = self.create_customer_data(self.business, transactions_number=1, amount=transaction_amount)
         previous_balance = wallet.balance
 
-        response = self.client.get(f'/api/v1/wallets/business/{self.business.pk}/customers/transactions')
+        response = self.client.get(f'/api/v1/wallets/business/transactions')
         assert response.status_code == 200
         data = response.json()
         assert data.get('count') == 1
@@ -137,7 +145,7 @@ class TestBusiness(APITestCase, TestAuthenticationMixin):
             amount=transaction_amount
         )
 
-        response = self.client.get(f'/api/v1/wallets/business/{self.business.pk}/customers/transactions')
+        response = self.client.get(f'/api/v1/wallets/business/transactions')
         assert response.status_code == 200
         data = response.json()
 

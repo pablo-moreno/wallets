@@ -128,6 +128,20 @@ class TestCustomers(APITestCase, TestAuthenticationMixin):
         })
         assert response.status_code == 400
 
+    def test_create_wallet_and_deposit_negative_amount(self):
+        self.login(username=self.user.username, password=self.password)
+        response = self.client.post('/api/v1/wallets/customers/wallets')
+        assert response.status_code == 201
+
+        data = response.json()
+        uuid = data.get('uuid')
+
+        response = self.client.patch(f'/api/v1/wallets/customers/wallets/{uuid}/deposit', {
+            'amount': '-50.00',
+            'description': 'Deposit -50€',
+        })
+        assert response.status_code == 400
+
     def test_create_transaction(self):
         self.login(username=self.user.username, password=self.password)
 
@@ -141,14 +155,24 @@ class TestCustomers(APITestCase, TestAuthenticationMixin):
         self.client.logout()
         self.login(username=self.business.username, password=self.business.username)
 
-        response = self.client.get(f'/api/v1/wallets/business/{self.business.pk}/customers/transactions')
+        response = self.client.get(f'/api/v1/wallets/business/transactions')
         assert response.status_code == 200
 
         results = response.json().get('results')
         assert len(results) == 1
 
-    def test_cannot_list_business_transaction_as_customer(self):
+    def test_list_customers_business_transactions(self):
         self.login(username=self.user.username, password=self.password)
 
+        data = {
+            'amount': '1500.00',
+            'description': 'TV LG OLED 55" 4K'
+        }
+        response = self.client.post(f'/api/v1/wallets/business/{self.business.pk}/customers/transactions', data)
+        assert response.status_code == 201
+
         response = self.client.get(f'/api/v1/wallets/business/{self.business.pk}/customers/transactions')
-        assert response.status_code == 403
+        assert response.status_code == 200
+
+        data = response.json()
+        assert data.get('count') == 1

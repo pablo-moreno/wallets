@@ -9,4 +9,4 @@ https://wallets.spookydev.com
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/3d2a724f-1ac3-40a6-b904-ab25919fba24/deploy-status)](https://app.netlify.com/sites/wallets-docs/deploys)
 
-Full documentation is hosted in [Netlify](https://wallets-docs.spookydev.com)
+Full documentation is hosted in [Netlify](https://wallets-docs.netlify.app)

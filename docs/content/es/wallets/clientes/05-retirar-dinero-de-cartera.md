@@ -26,7 +26,7 @@ El usuario debe estar logueado y ser de tipo `cliente (1)`.
 
 ```
 {
-  "amount": "200.00",
+  "amount": "-200.00",
   "description": "Retirada 200€"
 }
 ```
@@ -39,3 +39,13 @@ El usuario debe estar logueado y ser de tipo `cliente (1)`.
 ### Errores
 
 > `409 Conflict`: Fondos insuficientes
+
+<code-block label="Bash" active>
+
+```
+{
+  "detail": "Balance can't be negative"
+}
+```
+
+</code-block>
