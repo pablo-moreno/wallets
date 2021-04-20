@@ -63,7 +63,7 @@ nginx/
 
 ```
 
-** 🌵 Environment variables**
+**🌵 Environment variables**
 
 ```bash
 DATABASE_URL: postgres://admin:development@postgres:5432/wallets
@@ -72,7 +72,7 @@ DJANGO_SETTINGS_MODULE: "config.settings.production"
 SECRET_KEY: "secret key"
 ```
 
-** Github Settings **
+**Github Settings **
 
 You need to set this Github Secrets in `Settings / Secrets`
 
