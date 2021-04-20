@@ -60,8 +60,9 @@ nginx/
 ├── default.conf
 ├── general.conf
 └── proxy.conf
-
 ```
+
+Then you need to setup the environment variables:
 
 **🌵 Environment variables**
 
@@ -72,7 +73,15 @@ DJANGO_SETTINGS_MODULE: "config.settings.production"
 SECRET_KEY: "secret key"
 ```
 
-**Github Settings **
+**Deploy stack**
+
+To deploy the stack, you have to run:
+
+```bash
+docker stack deploy -c docker-compose.yml wallets
+```
+
+**CI/CD Github Settings**
 
 You need to set this Github Secrets in `Settings / Secrets`
 
