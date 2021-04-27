@@ -2,12 +2,12 @@ name: Docker
 
 on:
   push:
-    # Publish `1.2.3` tags as releases.
-    tags:
-      - '*'
-
-  # Run tests for any PRs.
-  pull_request:
+    branches:
+      - "*"
+  
+  release:
+    types:
+      - created
 
 env:
   IMAGE_NAME: wallets
@@ -22,15 +22,14 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Run tests
-        run: |
-          docker-compose --file docker-compose.test.yml run -e CODECOV_TOKEN=$CODECOV_TOKEN wallets bash runtests.sh
+        run: docker-compose --file docker-compose.test.yml run -e CODECOV_TOKEN=$CODECOV_TOKEN wallets bash runtests.sh
 
   # Push image to GitHub Packages.
-  push:
+  build:
     needs: test
 
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: github.event_name == 'release'
 
     steps:
       - uses: actions/checkout@v2
@@ -45,7 +44,7 @@ jobs:
         run: docker push docker.pkg.github.com/pablo-moreno/wallets/wallets:latest
 
   deploy:
-    needs: push
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
