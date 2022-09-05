@@ -129,6 +129,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+SERVE_FILES = os.environ.get('SERVE_FILES', 'true').lower() == 'true'
 
 # Django Rest Framework Configuration
 REST_FRAMEWORK = {

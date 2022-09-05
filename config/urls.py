@@ -22,4 +22,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/users/', include('users.api.v1.urls')),
     path('api/v1/wallets/', include('wallets.api.v1.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.SERVE_FILES:
+    urlpatterns.append(static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT))
+    urlpatterns.append(static(settings.STATIC_URL, document_root=settings.STATIC_ROOT))
